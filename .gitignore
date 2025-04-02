@@ -1,5 +1,5 @@
-./include/
-./include/waveshare_epd
-./output_copy.png
-./output_image.png
+/include/
+include/waveshare_epd
+output_copy.png
+output_image.png
 roboto.ttf
