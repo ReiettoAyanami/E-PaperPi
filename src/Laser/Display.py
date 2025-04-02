@@ -1,24 +1,24 @@
 from include.waveshare_epd.epd4in2_V2 import *
 from PIL import Image as PILImage,ImageDraw,ImageFont, ImageOps
-from ..Laser.Text import Text
-from ..Laser.Image import PILImage as LaserImage
+from src.Laser.AttributeReference import AttributeReference
+from src.Laser.Canvas import Canvas
 FastRefresh1_5s:int = 0
 FastRefresh1s:int = 1
 DisplayHorizontal:int = 0
 DisplayVertical:int = 1
 class Display:
-    def __init__(self, display_driver:EPD = None, default_font:ImageFont=None, orientation:int=DisplayHorizontal):
+    def __init__(self, display_driver:EPD ,canvas:AttributeReference = None, orientation:int=DisplayHorizontal):
         self.init_modes = ('standard', 'grayscale', 'fast')
         self.GRAYS:list[int] = [display_driver.GRAY1, display_driver.GRAY2, display_driver.GRAY3, display_driver.GRAY4]
         self.WHITE:int = display_driver.GRAY1
         self.BLACK:int = display_driver.GRAY4
         self.__display_driver = display_driver
-        self.__base_layer:Image= None
-        self.__painter:ImageDraw = None
+        self.__canvas:Canvas = canvas if canvas is not None else Canvas(width=display_driver.width, height=display_driver.height, mode= '1')
+        self.__canvas.width = display_driver.width
+        self.__canvas.height = display_driver.height
         self.orientation = orientation
         self.width = self.__display_driver.width if self.orientation == DisplayHorizontal else self.__display_driver.height
         self.height = self.__display_driver.height if self.orientation == DisplayHorizontal else self.__display_driver.width
-        self.font:ImageFont = default_font
         self.__current_mode = 'standard'
         
     def start(self, mode:str = 'standard', fast_start_seconds:int = FastRefresh1_5s):
@@ -31,29 +31,29 @@ class Display:
         else:
             init_mode[mode](fast_start_seconds)
         self.reset_base_layer()
-        return (self.__base_layer, self.__painter)
+        return (self.__base_layer, self.__canvas)
 
-    def __get_painter_reference(self) -> callable:
-        return self.__painter
+    # def __get_painter_reference(self) -> callable:
+    #     return self.__canvas
 
     def clear_display(self):
         self.__display_driver.init()
         self.__display_driver.Clear()
     
-    def draw_pixel(self,position:tuple, color:int=0):
-        self.__painter.point(position, color)
+    # def draw_pixel(self,position:tuple, color:int=0):
+    #     self.__canvas.point(position, color)
     
-    def draw_rectangle(self,rect:tuple, color:int=0, outline_color:int=0, outline_width=1):
-        self.__painter.rectangle(rect,fill=color,outline=outline_color,width=outline_width)
+    # def draw_rectangle(self,rect:tuple, color:int=0, outline_color:int=0, outline_width=1):
+    #     self.__canvas.rectangle(rect,fill=color,outline=outline_color,width=outline_width)
     
-    def draw_cirlce(self,position:tuple,radius:int,color:int=0,outline_color:int=0, outline_width=1):
-        self.__painter.circle(position,radius,fill=color,outline=outline_color,width=outline_width)
+    # def draw_cirlce(self,position:tuple,radius:int,color:int=0,outline_color:int=0, outline_width=1):
+    #     self.__canvas.circle(position,radius,fill=color,outline=outline_color,width=outline_width)
 
-    def draw_line(self, XYs:tuple, color:int=0, width:int=1, joint:str=None):
-        self.__painter.circle(XYs,fill=color,width=width,joint=joint)
+    # def draw_line(self, XYs:tuple, color:int=0, width:int=1, joint:str=None):
+    #     self.__canvas.circle(XYs,fill=color,width=width,joint=joint)
         
-    def draw_text(self, position: tuple, color: int = 0, font: ImageFont = None, text: str = "", anchor: str = None, spacing: int = 4, align: str = 'left', direction: str = None):
-        self.painter.text(position, text, fill=color, font=font, anchor=anchor, spacing=spacing, align=align, direction=direction)
+    # def draw_text(self, position: tuple, color: int = 0, font: ImageFont = None, text: str = "", anchor: str = None, spacing: int = 4, align: str = 'left', direction: str = None):
+    #     self.painter.text(position, text, fill=color, font=font, anchor=anchor, spacing=spacing, align=align, direction=direction)
 
     def render(self, partial:bool=False):
         if(partial):
@@ -70,10 +70,10 @@ class Display:
             self.__display_driver.display(self.__display_driver.getbuffer(self.__base_layer))
     def reset_base_layer(self):
         if(self.__current_mode != 'grayscale'):
-            self.__base_layer = PILImage.new('1', (self.width, self.height), 255)
+            self.__canvas = PILImage.new('1', (self.width, self.height), 255)
         else:
             self.__base_layer = PILImage.new('L', (self.width, self.height), 255)     
-        self.__painter = ImageDraw.Draw(self.__base_layer)   
+        self.__canvas = ImageDraw.Draw(self.__base_layer)   
 
     def stop(self):
         self.__display_driver.Clear()
@@ -90,7 +90,7 @@ class Display:
         return self.__base_layer
     @property
     def painter(self):
-        return self.__painter
+        return self.__canvas
     @property
     def current_mode(self):
         return self.__current_mode
@@ -107,15 +107,15 @@ class Display:
         if mode == 'grayscale':
             self.__display_driver.Init_4Gray()
             self.__base_layer = self.__base_layer.convert('L')
-            self.__painter = ImageDraw.Draw(self.__base_layer)
+            self.__canvas = ImageDraw.Draw(self.__base_layer)
         elif mode == 'fast':
             self.__display_driver.init_fast()
             self.__base_layer = self.__base_layer.convert('1')
-            self.__painter = ImageDraw.Draw(self.__base_layer)
+            self.__canvas = ImageDraw.Draw(self.__base_layer)
         else:
             self.__display_driver.init()
             self.__base_layer = self.__base_layer.convert('1')
-            self.__painter = ImageDraw.Draw(self.__base_layer)
+            self.__canvas = ImageDraw.Draw(self.__base_layer)
 
 
         

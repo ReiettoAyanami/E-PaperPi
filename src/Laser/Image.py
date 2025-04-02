@@ -1,7 +1,7 @@
 from PIL import ImageDraw
 from PIL import Image as PILImage
 
-
+# TODO reworka perché Canvas é giá un Wrappper di PILImage, questo serve come interfaccia per IMageDraw
 class Image:
     def __init__(self,image, image_path = ''):
         self._image_path: str = image_path
