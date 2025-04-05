@@ -1,39 +1,21 @@
 
-from src.Laser.Brush import Brush
-from src.Laser.AttributeReference import AttributeReference
+from Brush import Brush
 from PIL.Image import Image as PILImage
-from src.Laser.Gettable import Gettable
-from src.Laser.Settable import Settable
-
-"""
-TODO:
-    Painter paints with the brush on the canvas.
-
-
-    Canvas contiene la Pil.Image
-    Brush contiene ImageDraw
-    Painter (Image e Text per esempio) chiamerá le funzioni di Brush e quindi conterrá brush
-
-"""
+from Gettable import Gettable
+from Settable import Settable
 
 class Canvas(Gettable, Settable):
     def __init__(self, width: int = 0, height: int = 0, mode:str = '1'):
         self._canvas:PILImage = PILImage.new(mode, (height, width), 255)
-        self._canvas_reference:AttributeReference = AttributeReference(self.get)
         self._brush:Brush = Brush(self._canvas_reference)
-        self._brush_reference:AttributeReference = AttributeReference(self._brush.get)
         self.width = width
         self.height = height
         self.mode = mode
 
-    def __reset_brush(self):
+    def reset_brush(self):
         self._brush = Brush(self._canvas_reference)
-        self._brush_reference = AttributeReference(self._brush.get)
-    def __reset_canvas(self):
-        #only resets the canvas
-        self._canvas = PILImage.new(self.mode, (self.height, self.width), 255)
-        self._canvas_reference = AttributeReference(self.get)
-        
+    def reset(self, mode:str = '1', dimensions:tuple[int, int] = (0, 0), color:int = 255):
+        self._canvas = PILImage.new(mode, dimensions, color)
 
     def get(self) -> PILImage:
         return self._canvas
@@ -52,7 +34,6 @@ class Canvas(Gettable, Settable):
     @width.setter
     def width(self, width: int):
         self._canvas = PILImage.new('1', (self.height, width), 255)
-        self._canvas_reference = AttributeReference(self.get)
         self.__reset_brush()
 
     @property
@@ -62,7 +43,6 @@ class Canvas(Gettable, Settable):
     @height.setter
     def height(self, height: int):
         self._canvas = PILImage.new('1', (height, self.width), 255)
-        self._canvas_reference = AttributeReference(self.get)
         self.__reset_brush()
 
     @property
@@ -71,7 +51,6 @@ class Canvas(Gettable, Settable):
     
     @mode.setter
     def mode(self, mode: str):
-        self._canvas = PILImage.new(mode, (self.height, self.width), 255)
-        self._canvas_reference = AttributeReference(self.get)
+        self._canvas.convert(mode)
         self.__reset_brush()
     

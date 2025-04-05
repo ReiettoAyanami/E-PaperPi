@@ -1,7 +1,7 @@
 from include.waveshare_epd.epd4in2_V2 import *
 from src.Laser.Display import *
 from PIL import Image as PILImage,ImageDraw,ImageFont
-from src.Laser.Image import Image as LaserImage
+from Laser.IO_Image import Image as LaserImage
 from src.Laser.Text import Text
 from include.waveshare_epd.epd4in2_V2 import *
 
