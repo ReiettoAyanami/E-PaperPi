@@ -1,8 +1,8 @@
 from PIL import ImageDraw
 class Text:
-    def __init__(self,painter_reference:callable, position, text, fill=None, font=None, anchor=None, spacing=4, align='left', direction=None, features=None, language=None, 
+    def __init__(self,brush:callable, position, text, fill=None, font=None, anchor=None, spacing=4, align='left', direction=None, features=None, language=None, 
                 stroke_width=0, stroke_fill=None, embedded_color=False, font_size=None):
-        self._painter_ref = painter_reference
+        self.__brush = brush
         self._position = position
         self._text = text
         self._fill = fill
@@ -18,8 +18,14 @@ class Text:
         self._embedded_color = embedded_color
         self._font_size=font_size
 
+    def paint(self, **kwargs):
+        if 'multiline' in kwargs and kwargs['multiline']:
+            self.render_multiline()
+        else:
+            self.render()
+
     def render(self):
-        self._painter_ref().text(
+        self.__brush.get().text(
             xy=self._position,
             text=self._text,
             fill=self._fill,
@@ -36,7 +42,7 @@ class Text:
         )
 
     def render_multiline(self):
-        self._painter_ref().multiline_text(
+        self.__brush.get().multiline_text(
             xy=self._position,
             text=self._text,
             fill=self._fill,
@@ -54,7 +60,7 @@ class Text:
 
     @property
     def bbox(self):
-        return self._painter_ref().textbbox(
+        return self.__brush.get().textbbox(
             xy=self._position, 
             text=self._text, 
             font=self._font, 
@@ -71,7 +77,7 @@ class Text:
 
     @property
     def bbox_multiline(self):
-        return self._painter_ref().multiline_textbbox(
+        return self.__brush.get().multiline_textbbox(
             xy=self._position, 
             text=self._text, 
             font=self._font, 
@@ -88,7 +94,7 @@ class Text:
 
     @property
     def textlength(self):
-        return self._painter_ref().textlength(
+        return self.__brush.get().textlength(
             text=self._text, 
             font=self._font, 
             direction=self._direction, 

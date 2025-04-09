@@ -12,10 +12,11 @@ class IO_Image(Painter, Gettable, Settable):
         super().__init__(brush)
         self.__image:PILImage = PILImage.open(image_path) if image_path is not None else PILImage.new('1', (0, 0), 255)
         self.__image_path:str = image_path
+        self.__brush:callable = brush
     
     def paint(self, **kwargs):
         super().paint(**kwargs)
-        self.__brush().bitmap((kwargs['x'], kwargs['y']), self.__brush().canvas_reference(), fill=255)
+        self.__brush.get().bitmap((kwargs['x'], kwargs['y']), self.__brush.get().canvas_reference(), fill=255)
 
     def get(self) -> PILImage:
         return self.__image
