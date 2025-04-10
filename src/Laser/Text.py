@@ -1,8 +1,10 @@
 from PIL import ImageDraw
+from src.Laser.Display import Display
+
 class Text:
-    def __init__(self,painter_reference:callable, position, text, fill=None, font=None, anchor=None, spacing=4, align='left', direction=None, features=None, language=None, 
+    def __init__(self, display, position, text, fill=None, font=None, anchor=None, spacing=4, align='left', direction=None, features=None, language=None, 
                 stroke_width=0, stroke_fill=None, embedded_color=False, font_size=None):
-        self._painter_ref = painter_reference
+        self._display = display
         self._position = position
         self._text = text
         self._fill = fill
@@ -19,7 +21,7 @@ class Text:
         self._font_size=font_size
 
     def render(self):
-        self._painter_ref().text(
+        self._display.painter.text(
             xy=self._position,
             text=self._text,
             fill=self._fill,
@@ -36,7 +38,7 @@ class Text:
         )
 
     def render_multiline(self):
-        self._painter_ref().multiline_text(
+        self._display.painter.multiline_text(
             xy=self._position,
             text=self._text,
             fill=self._fill,
@@ -54,7 +56,7 @@ class Text:
 
     @property
     def bbox(self):
-        return self._painter_ref().textbbox(
+        return self._display.painter.textbbox(
             xy=self._position, 
             text=self._text, 
             font=self._font, 
@@ -71,7 +73,7 @@ class Text:
 
     @property
     def bbox_multiline(self):
-        return self._painter_ref().multiline_textbbox(
+        return self._display.painter.multiline_textbbox(
             xy=self._position, 
             text=self._text, 
             font=self._font, 
@@ -88,7 +90,7 @@ class Text:
 
     @property
     def textlength(self):
-        return self._painter_ref().textlength(
+        return self._display.painter.textlength(
             text=self._text, 
             font=self._font, 
             direction=self._direction, 
@@ -98,14 +100,13 @@ class Text:
             font_size=self._font_size
         )
 
-
     @property
     def painter(self):
-        return self._painter_ref
+        return self._display.painter
 
     @painter.setter
     def painter(self, value):
-        self._painter_ref = value
+        self._display.painter = value
 
     @property
     def position(self):

@@ -1,22 +1,29 @@
 from PIL import ImageDraw
 from PIL import Image as PILImage
+from PIL import ImageOps
+from src.Laser.Display import Display
 
 
-class Image:
-    def __init__(self,image, image_path = ''):
-        self._image_path: str = image_path
+class FileImage:
+    def __init__(self, display, image_path='', position=(0, 0)):
+        self._image_path = image_path
         self._image = PILImage.open(image_path)
-        self._local_painter: ImageDraw = ImageDraw.Draw(self._image)
+        self._display = display
+        self._position = position
 
-    def __get_local_painter_ref(self) -> ImageDraw:
-        return self._local_painter
-
-    @property
-    def local_painter_reference(self) -> callable:
-        return self.__get_local_painter_ref
+    def render(self):
+        self._display.base_layer.paste(self._image, self._position)
 
     @property
-    def image(self) -> PILImage:
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
+
+    @property
+    def image(self):
         return self._image
 
     # Wrapper for PILImage attributes
@@ -50,7 +57,7 @@ class Image:
 
     # Wrapper for PILImage methods
     def convert(self, mode, **kwargs):
-        self._image.convert(mode, **kwargs)
+        self._image = self._image.convert(mode, **kwargs)
 
     def copy(self):
         self._image = self._image.copy()
@@ -59,7 +66,7 @@ class Image:
         self._image = self._image.crop(box)
 
     def filter(self, filter):
-        self._image.filter(filter)
+        self._image = self._image.filter(filter)
 
     def getpixel(self, xy):
         return self._image.getpixel(xy)
@@ -92,7 +99,7 @@ class Image:
         self._image.seek(frame)
 
     def tell(self):
-        self._image = self._image.tell()
+        return self._image.tell()
 
     def paste(self, im, box=None, mask=None):
         self._image.paste(im, box, mask)

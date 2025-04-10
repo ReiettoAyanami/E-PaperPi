@@ -1,11 +1,11 @@
-from include.waveshare_epd.epd4in2_V2 import *
+from src.include.waveshare_epd.epd4in2_V2 import *
 from PIL import Image as PILImage,ImageDraw,ImageFont, ImageOps
-from ..Laser.Text import Text
-from ..Laser.Image import PILImage as LaserImage
+
 FastRefresh1_5s:int = 0
 FastRefresh1s:int = 1
 DisplayHorizontal:int = 0
 DisplayVertical:int = 1
+
 class Display:
     def __init__(self, display_driver:EPD = None, default_font:ImageFont=None, orientation:int=DisplayHorizontal):
         self.init_modes = ('standard', 'grayscale', 'fast')
@@ -31,30 +31,12 @@ class Display:
         else:
             init_mode[mode](fast_start_seconds)
         self.reset_base_layer()
-        return (self.__base_layer, self.__painter)
 
-    def __get_painter_reference(self) -> callable:
-        return self.__painter
 
     def clear_display(self):
         self.__display_driver.init()
         self.__display_driver.Clear()
     
-    def draw_pixel(self,position:tuple, color:int=0):
-        self.__painter.point(position, color)
-    
-    def draw_rectangle(self,rect:tuple, color:int=0, outline_color:int=0, outline_width=1):
-        self.__painter.rectangle(rect,fill=color,outline=outline_color,width=outline_width)
-    
-    def draw_cirlce(self,position:tuple,radius:int,color:int=0,outline_color:int=0, outline_width=1):
-        self.__painter.circle(position,radius,fill=color,outline=outline_color,width=outline_width)
-
-    def draw_line(self, XYs:tuple, color:int=0, width:int=1, joint:str=None):
-        self.__painter.circle(XYs,fill=color,width=width,joint=joint)
-        
-    def draw_text(self, position: tuple, color: int = 0, font: ImageFont = None, text: str = "", anchor: str = None, spacing: int = 4, align: str = 'left', direction: str = None):
-        self.painter.text(position, text, fill=color, font=font, anchor=anchor, spacing=spacing, align=align, direction=direction)
-
     def render(self, partial:bool=False):
         if(partial):
             self.__display_driver.display_Partial(self.__display_driver.getbuffer(self.__base_layer))
@@ -68,6 +50,7 @@ class Display:
             self.__display_driver.display_Fast(self.__display_driver.getbuffer(self.__base_layer))
         else:
             self.__display_driver.display(self.__display_driver.getbuffer(self.__base_layer))
+
     def reset_base_layer(self):
         if(self.__current_mode != 'grayscale'):
             self.__base_layer = PILImage.new('1', (self.width, self.height), 255)
@@ -80,26 +63,11 @@ class Display:
         self.__display_driver.sleep()
     
     @property
-    def painter_reference(self) -> callable:
-        return self.__get_painter_reference
-    @property
-    def display_driver(self):
-        return self.__display_driver
-    @property
-    def base_layer(self):
-        return self.__base_layer
-    @property
-    def painter(self):
-        return self.__painter
-    @property
     def current_mode(self):
         return self.__current_mode
-    @property
-    def current_mode(self):
-        return self.__current_mode
+
     @current_mode.setter
     def current_mode(self, mode: str):
-
         if mode not in self.init_modes:
             raise ValueError(f"Invalid mode: {mode}. Valid modes are: {list(self.init_modes)}")
         self.__current_mode = mode
@@ -116,8 +84,16 @@ class Display:
             self.__display_driver.init()
             self.__base_layer = self.__base_layer.convert('1')
             self.__painter = ImageDraw.Draw(self.__base_layer)
+    
+    @property
+    def base_layer(self):
+        return self.__base_layer
 
+    @property
+    def painter(self):
+        return self.__painter
 
+    
         
         
         
